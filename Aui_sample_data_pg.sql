@@ -1,30 +1,19 @@
 -- AUI Club, Event & Facility Management System
--- Extended sample data (DML) - PostgreSQL
+-- More sample data (DML) - PostgreSQL
 --
 -- AI prompt used to generate this sample data:
 --   "make sample data to populate this database each individual table,
 --    dont run the insert yet just the file to populate it first"
 --
--- Run AFTER aui_schema_pg.sql:
+-- Run after aui_schema_pg.sql:
 --   psql -v ON_ERROR_STOP=1 -a -f aui_sample_data_pg.sql -U dhanae
---
--- This file EMPTIES every table and reloads a larger data set.
--- The original rows from aui_schema_pg.sql are kept (same ids), so
--- queries that use names like 'AUI Hackathon 2026' still work.
---
--- Rows that exist on purpose for outer-join / set-difference examples:
---   * Chess Club (club 9)          -> has no members and no events
---   * Rania Ouazzani (student 30)  -> belongs to no club
---   * Folding Chairs (equipment 4) -> never requested
---   * several requests have no decision yet (pending)
+-- (it empties the tables first and then inserts everything again)
 
 TRUNCATE request, equipment, venue, administrator, registration,
          event_club, event, officer, membership, club, student
          RESTART IDENTITY CASCADE;
 
--- =====================================================================
--- 1. STUDENT (30 rows)
--- =====================================================================
+-- 1. STUDENT
 INSERT INTO student (student_id, student_name, email) VALUES
 (1,  'Amber Alaoui',       'amber.alaoui@aui.ma'),
 (2,  'Youssef Benani',     'youssef.benani@aui.ma'),
@@ -57,9 +46,7 @@ INSERT INTO student (student_id, student_name, email) VALUES
 (29, 'Soukaina Moussaoui', 'soukaina.moussaoui@aui.ma'),
 (30, 'Rania Ouazzani',     'rania.ouazzani@aui.ma');
 
--- =====================================================================
--- 2. CLUB (9 rows)
--- =====================================================================
+-- 2. CLUB
 INSERT INTO club (club_id, club_name) VALUES
 (1, 'Computer Science Club'),
 (2, 'Debate Club'),
@@ -71,9 +58,7 @@ INSERT INTO club (club_id, club_name) VALUES
 (8, 'Environmental Club'),
 (9, 'Chess Club');
 
--- =====================================================================
--- 3. MEMBERSHIP (35 rows)
--- =====================================================================
+-- 3. MEMBERSHIP
 INSERT INTO membership (student_id, club_id, join_date) VALUES
 -- Computer Science Club
 (1,  1, '2025-09-15'),
@@ -118,11 +103,9 @@ INSERT INTO membership (student_id, club_id, join_date) VALUES
 (21, 8, '2025-11-03'),
 (22, 8, '2026-02-12'),
 (10, 8, '2026-03-08');
--- Chess Club (9) has no members; student 30 is in no club.
+-- (chess club has no members yet)
 
--- =====================================================================
--- 4. OFFICER (15 rows) - each (student, club) pair exists in MEMBERSHIP
--- =====================================================================
+-- 4. OFFICER
 INSERT INTO officer (officer_id, student_id, club_id, officer_role) VALUES
 (1,  1,  1, 'President'),
 (2,  2,  1, 'Treasurer'),
@@ -140,9 +123,7 @@ INSERT INTO officer (officer_id, student_id, club_id, officer_role) VALUES
 (14, 20, 8, 'President'),
 (15, 8,  4, 'Secretary');
 
--- =====================================================================
--- 5. EVENT (15 rows)
--- =====================================================================
+-- 5. EVENT
 INSERT INTO event (event_id, event_name, event_date, created_by_officer_id) VALUES
 (1,  'AUI Hackathon 2026',          '2026-10-15', 1),
 (2,  'Inter-University Debate',     '2026-12-05', 3),
@@ -160,9 +141,7 @@ INSERT INTO event (event_id, event_name, event_date, created_by_officer_id) VALU
 (14, 'Drone Racing Challenge',      '2027-03-05', 8),
 (15, 'Open Mic Night',              '2027-02-25', 15);
 
--- =====================================================================
--- 6. EVENT_CLUB (18 rows) - events 5, 13 and 15 are co-organized
--- =====================================================================
+-- 6. EVENT_CLUB
 INSERT INTO event_club (event_id, club_id) VALUES
 (1,  1),
 (2,  2),
@@ -183,102 +162,96 @@ INSERT INTO event_club (event_id, club_id) VALUES
 (15, 4),
 (15, 6);
 
--- =====================================================================
--- 7. REGISTRATION (63 rows)
---    attended = TRUE/FALSE for past events, NULL for upcoming events
--- =====================================================================
+-- 7. REGISTRATION
+-- attended is NULL for events that didnt happen yet
 INSERT INTO registration (student_id, event_id, registration_date, attended) VALUES
--- 1. AUI Hackathon 2026 (past)
+-- AUI Hackathon 2026 (past)
 (1,  1, '2026-10-01', TRUE),
 (2,  1, '2026-10-02', TRUE),
 (3,  1, '2026-10-03', FALSE),
 (23, 1, '2026-10-05', TRUE),
 (24, 1, '2026-10-05', TRUE),
--- 2. Inter-University Debate (upcoming)
+-- Inter-University Debate (upcoming)
 (4,  2, '2026-11-01', NULL),
 (5,  2, '2026-11-01', NULL),
 (27, 2, '2026-11-03', NULL),
--- 3. Robotics Workshop (past)
+-- Robotics Workshop (past)
 (6,  3, '2026-10-10', TRUE),
 (2,  3, '2026-10-12', TRUE),
--- 4. Theater Night (upcoming)
+-- Theater Night (upcoming)
 (7,  4, '2026-11-01', NULL),
 (8,  4, '2026-11-01', NULL),
--- 5. Technology and Debate Panel (upcoming)
+-- Technology and Debate Panel (upcoming)
 (1,  5, '2026-11-01', NULL),
 (4,  5, '2026-11-01', NULL),
 (2,  5, '2026-11-04', NULL),
 (27, 5, '2026-11-06', NULL),
--- 6. Campus Photo Walk (past)
+-- Campus Photo Walk (past)
 (9,  6, '2026-10-20', TRUE),
 (10, 6, '2026-10-21', TRUE),
 (11, 6, '2026-10-22', FALSE),
 (12, 6, '2026-10-25', TRUE),
 (30, 6, '2026-10-28', TRUE),
--- 7. Spring Concert (past)
+-- Spring Concert (past)
 (13, 7, '2026-04-01', TRUE),
 (14, 7, '2026-04-01', TRUE),
 (15, 7, '2026-04-02', TRUE),
 (9,  7, '2026-04-05', FALSE),
 (29, 7, '2026-04-06', TRUE),
 (1,  7, '2026-04-10', TRUE),
--- 8. Startup Pitch Day (past)
+-- Startup Pitch Day (past)
 (16, 8, '2026-11-05', TRUE),
 (17, 8, '2026-11-05', TRUE),
 (18, 8, '2026-11-06', FALSE),
 (4,  8, '2026-11-07', TRUE),
 (19, 8, '2026-11-08', TRUE),
 (24, 8, '2026-11-10', TRUE),
--- 9. Campus Clean-Up Day (past)
+-- Campus Clean-Up Day (past)
 (20, 9, '2026-09-15', TRUE),
 (21, 9, '2026-09-15', TRUE),
 (22, 9, '2026-09-16', TRUE),
 (10, 9, '2026-09-18', TRUE),
 (6,  9, '2026-09-20', FALSE),
--- 10. Intro to Python Workshop (past)
+-- Intro to Python Workshop (past)
 (1,  10, '2026-09-01', TRUE),
 (2,  10, '2026-09-01', TRUE),
 (3,  10, '2026-09-02', TRUE),
 (23, 10, '2026-09-03', TRUE),
 (24, 10, '2026-09-05', FALSE),
 (25, 10, '2026-09-06', TRUE),
--- 11. Photography Exhibition (upcoming)
+-- Photography Exhibition (upcoming)
 (9,  11, '2026-11-15', NULL),
 (11, 11, '2026-11-16', NULL),
 (12, 11, '2026-11-17', NULL),
--- 12. Jazz Evening (upcoming)
+-- Jazz Evening (upcoming)
 (13, 12, '2026-11-18', NULL),
 (15, 12, '2026-11-18', NULL),
 (29, 12, '2026-11-19', NULL),
 (7,  12, '2026-11-20', NULL),
--- 13. Green Business Forum (upcoming)
+-- Green Business Forum (upcoming)
 (16, 13, '2026-11-21', NULL),
 (20, 13, '2026-11-21', NULL),
 (21, 13, '2026-11-21', NULL),
 (17, 13, '2026-11-22', NULL),
--- 14. Drone Racing Challenge (upcoming)
+-- Drone Racing Challenge (upcoming)
 (6,  14, '2026-11-19', NULL),
 (25, 14, '2026-11-19', NULL),
 (26, 14, '2026-11-20', NULL),
 (2,  14, '2026-11-21', NULL),
--- 15. Open Mic Night (upcoming)
+-- Open Mic Night (upcoming)
 (7,  15, '2026-11-20', NULL),
 (8,  15, '2026-11-20', NULL),
 (28, 15, '2026-11-21', NULL),
 (14, 15, '2026-11-22', NULL);
 
--- =====================================================================
--- 8. ADMINISTRATOR (4 rows)
--- =====================================================================
+-- 8. ADMINISTRATOR
 INSERT INTO administrator (admin_id, admin_name) VALUES
 (1, 'Dr. Karim Naciri'),
 (2, 'Ms. Fatima Zahra Amrani'),
 (3, 'Mr. Driss Lahlou'),
 (4, 'Dr. Samira Bennis');
 
--- =====================================================================
--- 9. VENUE (8 rows)
--- =====================================================================
+-- 9. VENUE
 INSERT INTO venue (venue_id, venue_name, capacity) VALUES
 (1, 'Main Auditorium',          500),
 (2, 'Conference Room A',         60),
@@ -289,9 +262,7 @@ INSERT INTO venue (venue_id, venue_name, capacity) VALUES
 (7, 'Library Seminar Room',      30),
 (8, 'Student Center Lounge',    120);
 
--- =====================================================================
--- 10. EQUIPMENT (8 rows)
--- =====================================================================
+-- 10. EQUIPMENT
 INSERT INTO equipment (equipment_id, equipment_name, total_quantity) VALUES
 (1, 'Projector',       10),
 (2, 'Microphone',      20),
@@ -302,12 +273,9 @@ INSERT INTO equipment (equipment_id, equipment_name, total_quantity) VALUES
 (7, 'Whiteboard',       8),
 (8, 'Camera Tripod',   12);
 
--- =====================================================================
--- 11. REQUEST (27 rows)
---     VENUE requests: venue_id set, equipment_id and quantity NULL
---     EQUIPMENT requests: equipment_id and quantity set, venue_id NULL
---     Pending requests: admin_id, decision and decision_date all NULL
--- =====================================================================
+-- 11. REQUEST
+-- venue requests have a venue_id, equipment requests have an equipment_id + quantity
+-- requests with no decision are still pending
 INSERT INTO request (request_id, event_id, request_type, request_date, venue_id, equipment_id,
                      start_time, end_time, quantity, admin_id, decision, decision_date) VALUES
 (1,  1,  'VENUE',     '2026-10-01', 3,    NULL, '2026-10-15 09:00:00', '2026-10-15 18:00:00', NULL, 1,    'APPROVED', '2026-10-03'),
@@ -339,7 +307,7 @@ INSERT INTO request (request_id, event_id, request_type, request_date, venue_id,
 (27, 5,  'VENUE',     '2026-11-12', 1,    NULL, '2026-12-15 15:00:00', '2026-12-15 18:00:00', NULL, 1,    'REJECTED', '2026-11-14');
 
 
--- Move each id counter past the ids inserted above, so new rows get new ids
+-- fix the id sequences after inserting with fixed ids
 SELECT setval(pg_get_serial_sequence('student','student_id'),     (SELECT MAX(student_id)   FROM student));
 SELECT setval(pg_get_serial_sequence('club','club_id'),           (SELECT MAX(club_id)      FROM club));
 SELECT setval(pg_get_serial_sequence('officer','officer_id'),     (SELECT MAX(officer_id)   FROM officer));
