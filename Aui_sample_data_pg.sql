@@ -1,6 +1,10 @@
 -- AUI Club, Event & Facility Management System
 -- Extended sample data (DML) - PostgreSQL
 --
+-- AI prompt used to generate this sample data:
+--   "make sample data to populate this database each individual table,
+--    dont run the insert yet just the file to populate it first"
+--
 -- Run AFTER aui_schema_pg.sql:
 --   psql -v ON_ERROR_STOP=1 -a -f aui_sample_data_pg.sql -U dhanae
 --
