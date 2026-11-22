@@ -328,21 +328,3 @@ WITH club_size AS (
 SELECT club_name, members
 FROM club_size
 WHERE members = (SELECT MAX(members) FROM club_size);
-
--- Q42. Clubs that organize an event with 'Debate' in the name
-SELECT DISTINCT c.club_name
-FROM club c
-JOIN event_club ec ON c.club_id = ec.club_id
-JOIN event e       ON ec.event_id = e.event_id
-WHERE e.event_name LIKE '%Debate%';
-
--- Q43. Status of each request, pending ones first
-SELECT r.request_id, e.event_name, r.request_type,
-       CASE
-           WHEN r.decision IS NULL      THEN 'Pending'
-           WHEN r.decision = 'APPROVED' THEN 'Approved'
-           ELSE 'Rejected'
-       END AS status
-FROM request r
-JOIN event e ON r.event_id = e.event_id
-ORDER BY (r.decision IS NULL) DESC, r.request_date;
